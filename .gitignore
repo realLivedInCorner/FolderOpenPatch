@@ -1,0 +1,43 @@
+# Gradle
+.gradle/
+build/
+out/
+classes/
+!gradle/wrapper/gradle-wrapper.jar
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.ijwb/
+.eclipse/
+.classpath
+.project
+.settings/
+.vscode/
+bin/
+*.launch
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Fabric / Minecraft run
+run/
+runs/
+*.log
+logs/
+crash-reports/
+
+# Java
+hs_err_*.log
+replay_*.log
+*.hprof
+*.jfr
+
+# Local env / secrets
+*.local
+.env
+.env.*

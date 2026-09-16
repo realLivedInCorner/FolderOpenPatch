@@ -1,0 +1,33 @@
+{
+	"schemaVersion": 1,
+	"id": "folderopenpatch",
+	"version": "${version}",
+	"name": "Folder Open Patch",
+	"description": "Fixes the game freeze when opening the resource pack folder from the pack selection screen.",
+	"authors": [
+		"FolderOpenPatch"
+	],
+	"contact": {
+		"homepage": "https://github.com/",
+		"sources": "https://github.com/"
+	},
+	"license": "MIT",
+	"environment": "client",
+	"entrypoints": {
+		"client": [
+			"dev.folderopenpatch.client.FolderOpenPatchClient"
+		]
+	},
+	"mixins": [
+		{
+			"config": "folderopenpatch.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.19.5",
+		"minecraft": "~26.3",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}

@@ -1,0 +1,15 @@
+{
+	"required": true,
+	"package": "dev.folderopenpatch.client.mixin",
+	"compatibilityLevel": "JAVA_25",
+	"client": [
+		"Blaze3DOpenPathMixin",
+		"PackSelectionScreenMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	},
+	"overwrites": {
+		"requireAnnotations": true
+	}
+}
