@@ -13,7 +13,7 @@
 | 是否服务端问题 | **否**。纯客户端 UI 操作。 |
 | 是否渲染/GPU 问题 | **否**。不走渲染管线。 |
 | 是否人人必现 | **否**。依赖 OS、shell 扩展、路径形态、安全软件等环境。 |
-| 本 mod 的修复点 | 拦截 `Blaze3D.openPath`，改用异步 `explorer.exe <路径>` 打开目录。 |
+| 本 mod 的修复点 | 拦截 `Blaze3D.openUri` / `openPath`，改用异步 `explorer.exe <路径>` 打开目录。 |
 
 ---
 
@@ -69,6 +69,10 @@ PackSelectionScreen.lambda$init$0(Button)
 | P9 | 实例目录路径含奇怪启动器自定义结构 | 第三方启动器把 `.minecraft` 放在异常位置时更容易踩中 P1–P8。 |
 
 ### 3.3 `file://` URI + SDL 特有
+
+| # | 情形 | 机制说明 |
+|---|------|----------|
+| S0 | **模组直接调用 `Blaze3D.openUri(file://…)`**（已实锤） | 例如 Iris `ShaderPackScreen.openShaderPackFolder()`：`CompletableFuture.runAsync(() -> Blaze3D.openUri(directoryUri))`。即便外层异步，仍走 `SDL_OpenURL`，在本机环境下依旧可假死。 |
 
 | # | 情形 | 机制说明 |
 |---|------|----------|
@@ -142,10 +146,27 @@ explorer.exe <绝对路径>
 
 | 层级 | 目标 | 实现 |
 |------|------|------|
-| 主拦截 | 所有本地路径打开 | Mixin `Blaze3D.openPath` → `SafeFolderOpener.open` → cancel |
+| 主拦截 | 所有本地文件/目录 URI | Mixin `Blaze3D.openUri` → `file:` 则 `SafeFolderOpener` → cancel |
+| 路径拦截 | `Path` 直开 | Mixin `Blaze3D.openPath` → 同上 |
 | 副拦截 | 资源包按钮专用 | Mixin `PackSelectionScreen.lambda$init$0` Redirect |
+| 非 file | http/https 等 | 不拦截，保持原版（更新链接等） |
 | 执行 | 不阻塞、不走 SDL | daemon 线程 + `explorer.exe`（Windows）/ `open`（mac）/ `xdg-open`（Linux） |
 | 兜底 | 目录不存在 | 先 `mkdirs` 再打开 |
+
+### 6.1 与 Iris 的关系
+
+Iris 光影包界面「打开光影文件夹」实际代码为：
+
+```java
+private void openShaderPackFolder() {
+    CompletableFuture.runAsync(() ->
+        Blaze3D.openUri(Iris.getShaderpacksDirectoryManager().getDirectoryUri()));
+}
+```
+
+- 外层 `runAsync` **不能**避免 `SDL_OpenURL` 挂起（进程级/焦点问题仍在）。
+- 因此必须拦 `openUri`，而不仅是 `openPath`。
+- 同文件更新提示处的 `Blaze3D::openUri` 传入的是 **http(s) 链接**，本 mod 不拦截，仍可正常打开更新页。
 
 兼容说明：
 
@@ -172,4 +193,4 @@ explorer.exe <绝对路径>
 
 ---
 
-*报告对应 mod 版本：1.0.0（tag `v1.0.0`）*
+*报告对应 mod 版本：1.0.1（tag `v1.0.1`）；1.0.0 起覆盖原版材质包路径，1.0.1 起覆盖 Iris 等模组的 `openUri` 路径。*

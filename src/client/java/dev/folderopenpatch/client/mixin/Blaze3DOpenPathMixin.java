@@ -9,14 +9,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * Core fix for MC 26.3.
+ * Direct openPath intercept (belt-and-suspenders).
  *
- * Vanilla "Open pack folder" calls {@code Blaze3D.openPath}, which converts the
- * path to a {@code file://} URI and hands it to {@code SDL_OpenURL}. On Windows
- * that path can hang the process (ShellExecute / shell extension), making the
- * game look unresponsive.
- *
- * Replace it with an async {@code explorer.exe} open that returns immediately.
+ * Vanilla pack screen uses this; it delegates to {@code openUri}. Iris and some
+ * other mods call {@link Blaze3D#openUri} with a file URI directly — that is
+ * covered by {@code Blaze3DOpenUriMixin}.
  */
 @Mixin(value = Blaze3D.class, remap = false)
 public class Blaze3DOpenPathMixin {

@@ -4,6 +4,7 @@
 	"compatibilityLevel": "JAVA_25",
 	"client": [
 		"Blaze3DOpenPathMixin",
+		"Blaze3DOpenUriMixin",
 		"PackSelectionScreenMixin"
 	],
 	"injectors": {
