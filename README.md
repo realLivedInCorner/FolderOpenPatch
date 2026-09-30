@@ -19,11 +19,12 @@ PackSelectionScreen.lambda$init$0
 
 1. **异步打开**：独立 daemon 线程执行打开，立刻返回。
 2. **Windows 专用路径**：`explorer.exe <绝对路径>`，绕开 `SDL_OpenURL` / ShellExecute 阻塞点。
-3. **多层拦截**：
-   - `Blaze3D.openUri`（**中心入口**；Iris 光影界面直接调此方法）
-   - `Blaze3D.openPath`（原版材质包等路径打开，最终也进 openUri）
+3. **多层拦截**（由外到内）：
+   - `SDLMisc.SDL_OpenURL`（**最终 sink**：直接调 LWJGL 的 mod 也覆盖）
+   - `Blaze3D.openUri`（Iris 等走这里的入口）
+   - `Blaze3D.openPath`（原版材质包等）
    - `PackSelectionScreen.lambda$init$0` 额外 redirect
-   - 仅拦截 `file:` URI；`http(s)`（如更新链接）仍交给原版
+   - `file:` / 本地路径 → `explorer.exe`；`http(s)` 等也走系统打开，不再进 SDL
 
 ## 环境要求
 
@@ -46,7 +47,7 @@ $env:JAVA_HOME = "D:\Zulu\zulu-25"
 # D:\Java\gradle-9.5.1\bin\gradle.bat build
 ```
 
-产物：`build/libs/folder-open-patch-1.0.1.jar`
+产物：`build/libs/folder-open-patch-1.0.2.jar`
 
 ## 安装
 

@@ -9,10 +9,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * Central choke point used by both vanilla openPath and Iris ShaderPackScreen
- * (Iris calls {@code Blaze3D.openUri} with a {@code file://} directory URI).
- *
- * Only {@code file:} URIs are intercepted; http(s) (e.g. update links) fall through.
+ * Intercepts {@code Blaze3D.openUri}. File URIs go to the safe opener;
+ * other schemes are also routed through the safe opener so SDL is never hit
+ * from this API (update links still open, just via explorer/open).
  */
 @Mixin(value = Blaze3D.class, remap = false)
 public class Blaze3DOpenUriMixin {
